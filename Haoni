@@ -1,0 +1,98 @@
+.data
+A: .asciiz "A"
+B: .asciiz "B"
+C: .asciiz "C"
+to: .asciiz "to"
+space: .asciiz " "
+enter: .asciiz "\n"
+
+.macro	out
+	li	$v0, 4
+	syscall
+.end_macro
+
+.text
+	li	$v0, 5
+	syscall
+	move	$s0, $v0	# n
+	la	$a1, A	
+	la	$a2, B
+	la	$a3, C	
+	jal	Haoni
+	li	$v0, 10
+	syscall
+
+Haoni:
+	addi	$t1, $0, 1	# number 1
+	bne	$t1, $s0, else 
+	# n == 1, printf
+	move	$a0, $a1
+	out
+	la	$a0, space
+	out
+	la	$a0, to
+	out
+	la	$a0, space
+	out
+	move	$a0, $a3
+	out
+	la	$a0, enter
+	out
+	jr	$ra
+
+else:
+	subi	$sp, $sp, 20
+	sw	$s0, 0($sp)
+	sw	$a1, 4($sp)
+	sw	$a2, 8($sp)
+	sw	$a3, 12($sp)
+	sw	$ra, 16($sp)
+	subi	$s0, $s0, 1
+	lw	$a1, 4($sp)
+	lw	$a2, 12($sp)
+	lw	$a3, 8($sp)
+	jal	Haoni		# H(n-1,front,end,mid)
+	
+	lw	$s0, 0($sp)
+	lw	$a1, 4($sp)
+	lw	$a2, 8($sp)
+	lw	$a3, 12($sp)
+	lw	$ra, 16($sp)
+	addi	$sp, $sp, 20
+	# printf
+	move	$a0, $a1
+	out
+	la	$a0, space
+	out
+	la	$a0, to
+	out
+	la	$a0, space
+	out
+	move	$a0, $a3
+	out
+	la	$a0, enter
+	out
+	
+	subi	$sp, $sp, 20
+	sw	$s0, 0($sp)
+	sw	$a1, 4($sp)
+	sw	$a2, 8($sp)
+	sw	$a3, 12($sp)
+	sw	$ra, 16($sp)
+	subi	$s0, $s0, 1
+	lw	$a1, 8($sp)
+	lw	$a2, 4($sp)
+	lw	$a3, 12($sp)
+	jal	Haoni		# H(n-1,mid,front,end)
+	
+	lw	$s0, 0($sp)
+	lw	$a1, 4($sp)
+	lw	$a2, 8($sp)
+	lw	$a3, 12($sp)
+	lw	$ra, 16($sp)
+	addi	$sp, $sp, 20
+	jr	$ra
+	
+	
+		
+	

@@ -1,0 +1,89 @@
+.data
+array: .word 10
+symbol: .word 10
+space: .asciiz " "
+enter: .asciiz "\n"
+	li	$s0, 0	# n 
+	li	$s1, 0	# index
+	li	$t0, 0	# i
+	li	$t1, 0	# j
+	li	$t2, 0	# address of array[i]
+	li	$t3, 0	# address of symbol[j]
+	li	$s2, 0	# element of array
+	li	$s3, 0	# element of symbol
+	li	$t8, 1	# const 1
+	li	$t7, 0	# j + 1
+
+.text
+	li	$v0, 5
+	syscall
+	move	$s0, $v0
+	
+origin:
+	#sll	$t6, $t1, 2
+	#sw	$0, symbol($t6)
+	#addi	$t1, $t1, 1
+	#bne	$t1, $s0, origin
+	
+	jal	fullarray
+	
+	li	$v0, 10
+	syscall
+	
+fullarray:
+	blt	$s1, $s0, loopb
+	move	$t0, $0
+print:	
+	beq	$t0, $s0, crap# i == n ??
+	sll	$t2, $t0, 2
+	lw	$a0, array($t2)	
+	# printf(array[i])
+	li	$v0, 1
+	syscall			
+	la	$a0, ' '	
+	li	$v0, 11
+	syscall
+	addi	$t0, $t0, 1	# i++
+	j	print
+	
+crap:	
+	la	$a0, '\n'
+	li	$v0, 11
+	syscall
+
+	jr	$ra
+loopb:
+	move	$t0, $0	
+loop:
+	beq	$t0, $s0, end
+	sll	$t3, $t0, 2
+	lw	$s3, symbol($t3)
+	bnez	$s3 jpp	# symbol[j] == 0 ??
+	
+	addi	$t7, $t0, 1	
+	sll	$t2, $s1, 2
+	sw	$t7, array($t2)	# array[index] = j + 1
+	sll	$t3, $t0, 2
+	sw	$t8, symbol($t3)# symbol[j] = 1
+	subi	$sp, $sp, 16
+	sw	$ra, 0($sp)
+	sw	$s1, 4($sp)
+	sw	$t0, 8($sp)
+	addi	$s1, $s1, 1
+	jal	fullarray	# fullarray(index + 1)
+	
+	
+	lw	$ra, 0($sp)
+	lw	$s1, 4($sp)
+	lw	$t0, 8($sp)
+	addi	$sp, $sp, 16
+	sll	$t3, $t0, 2
+	sw	$0, symbol($t3)
+	
+
+jpp:
+	addi	$t0, $t0, 1
+	j	loop	
+	
+end:
+	jr	$ra 

@@ -1,0 +1,43 @@
+.text
+	li	$v0, 5
+	syscall
+	move	$s0, $v0	# year
+	div	$s1, $s0, 100
+	li	$s2, 100
+	mult	$s1, $s2
+	mflo	$s3		# if 100 * x
+	beq	$s3, $s0, judge100
+	div	$s1, $s0, 4
+	li	$s2, 4
+	mult	$s1, $s2
+	mflo	$s6		# if lunar year
+	beq	$s0, $s6, islunar
+	j	notlunar
+	
+	
+	
+
+judge100:
+	div	$s4, $s0, 400
+	li	$s5, 400
+	mult	$s4, $s5
+	mflo	$s6		# if lunar year
+	beq	$s0, $s6, islunar
+	j	notlunar
+
+islunar:
+	la	$a0, '1'
+	li	$v0, 11
+	syscall
+	li	$v0, 10
+	syscall
+
+notlunar:
+	la	$a0, '0'
+	li	$v0, 11
+	syscall
+	li	$v0, 10
+	syscall
+	
+	
+	

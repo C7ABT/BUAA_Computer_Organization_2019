@@ -1,0 +1,165 @@
+.data
+space: .asciiz " "
+enter: .asciiz "\n"
+step: .asciiz "Step"
+move: .asciiz "move"
+from: .asciiz "from"
+to: .asciiz "to"
+A: .asciiz "A"
+B: .asciiz "B"
+C: .asciiz "C"
+
+.macro	mid
+	li	$v0, 4
+	la	$a0, space
+	syscall
+.end_macro
+
+	la	$a1, A
+	la	$a2, B
+	la	$a3, C
+	li	$s0, 0	# n
+	li	$t0, 0	# sum
+	li	$t1, 1 	# const 1
+	
+.text
+	la	$a1, A
+	la	$a2, B
+	la	$a3, C
+	li	$s0, 0	# n
+	li	$t0, 0	# sum
+	li	$t1, 1 	# const 1
+	li	$v0, 5
+	syscall
+	move	$s0, $v0	# get n
+	jal	Hanoi
+	
+	li	$v0, 10
+	syscall
+	
+Hanoi:
+	bne	$s0, $t1, loop
+	
+	addi	$t0, $t0, 1
+	la	$a0, step	# step
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $t0	# sum
+	li	$v0, 1
+	syscall
+	mid
+	la	$a0, move	# move
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $s0	# n
+	li	$v0, 1
+	syscall
+	mid
+	la	$a0, from	# from
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $a1	# A
+	li	$v0, 4
+	syscall
+	mid
+	la	$a0, to		# to
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $a3	# C
+	li	$v0, 4
+	syscall
+	la	$a0, enter
+	li	$v0, 4
+	syscall
+	
+	jr	$ra
+	
+loop:
+	subi	$sp, $sp, 20
+	sw	$ra, 0($sp)
+	sw	$a1, 4($sp)
+	sw	$a2, 8($sp)
+	sw	$a3, 12($sp)
+	sw	$s0, 16($sp)
+	subi	$s0, $s0, 1
+	lw	$a1, 4($sp)
+	lw	$a2, 12($sp)
+	lw	$a3, 8($sp)
+	jal	Hanoi		# Hanoi(A, C, B, n - 1) 
+	
+	
+	lw	$ra, 0($sp)
+	lw	$a1, 4($sp)
+	lw	$a2, 8($sp)
+	lw	$a3, 12($sp)
+	lw	$s0, 16($sp)
+	addi	$sp, $sp, 20
+	
+	addi	$t0, $t0, 1
+	la	$a0, step	# step
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $t0	# sum
+	li	$v0, 1
+	syscall
+	mid
+	la	$a0, move	# move
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $s0	# n
+	li	$v0, 1
+	syscall
+	mid
+	la	$a0, from	# from
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $a1		# A
+	li	$v0, 4
+	syscall
+	mid
+	la	$a0, to		# to
+	li	$v0, 4
+	syscall
+	mid
+	move	$a0, $a3		# C
+	li	$v0, 4
+	syscall
+	la	$a0, enter
+	li	$v0, 4
+	syscall
+	
+	subi	$sp, $sp, 20
+	sw	$ra, 0($sp)
+	sw	$a1, 4($sp)
+	sw	$a2, 8($sp)
+	sw	$a3, 12($sp)
+	sw	$s0, 16($sp)
+	subi	$s0, $s0, 1
+	lw	$a1, 8($sp)
+	lw	$a2, 4($sp)
+	lw	$a3, 12($sp)
+	jal	Hanoi		# Hanoi(B, A, C, n - 1) 
+	
+	
+	lw	$ra, 0($sp)
+	lw	$a1, 4($sp)
+	lw	$a2, 8($sp)
+	lw	$a3, 12($sp)
+	lw	$s0, 16($sp)
+	addi	$sp, $sp, 20
+	
+	jr	$ra
+	
+	
+	
+	
+	
+		
+	

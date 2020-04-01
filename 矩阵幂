@@ -1,0 +1,144 @@
+.data
+a: .space	400
+b: .space	400
+c: .space	400
+
+.text
+	li	$t0, 0		# t0 is i
+	li	$t1, 0		# t1 is j
+	li	$t2, 0		# t2 is k
+	li	$t3, 0		# t3 is l
+	li	$t4, 0		# t4 is m
+	li	$t5, 0		# t5 is address	
+	li	$s5, 0								
+	
+	li	$v0, 5
+	syscall
+	move	$s0, $v0	# s0 is n
+	li	$v0, 5
+	syscall
+	move	$s1, $v0	# s1 is N
+
+get:
+	li	$v0, 5
+	syscall
+	move	$s3, $v0	# s3 is element_a
+	mult	$s0, $t0
+	mflo	$t5
+	add	$t5, $t5, $t1	# i * N + j
+	sll	$t5, $t5, 2	# get the address
+	sw	$s3, a($t5)
+	addi	$t1, $t1, 1	# j++
+	bne	$t1, $s0, get
+	move	$t1, $0
+	addi	$t0, $t0, 1	# i++
+	bne	$t0, $s0, get
+	move	$t0, $0
+	move	$t1, $0
+
+initial_b:
+	mult	$s0, $t0
+	mflo	$t5
+	add	$t5, $t5, $t1
+	sll	$t5, $t5, 2	# get the address
+	lw	$s3, a($t5)
+	sw	$s3, b($t5)
+	addi	$t1, $t1, 1	# j++
+	bne	$t1, $s0, initial_b
+	move	$t1, $0
+	addi	$t0, $t0, 1
+	bne	$t0, $s0, initial_b
+	addi	$t0, $0, 1	# i = 1
+	move	$t1, $0
+
+overall:
+		
+alu:
+	mult	$s0, $t1
+	mflo	$t7
+	add	$t7, $t7, $t2	# address_c[j][k] = j * n + k
+	sll	$t7, $t7, 2
+	
+	mult	$s0, $t1
+	mflo	$t5
+	add	$t5, $t5, $t3	# address_a[j][k] = j * n + l
+	sll	$t5, $t5, 2
+	
+	mult	$s0, $t3
+	mflo	$t6
+	add	$t6, $t6, $t2	# address_c[j][k] = l * n + k
+	sll	$t6, $t6, 2
+	
+	lw	$s3, a($t5)	# get element_a
+	lw	$s4, b($t6)	# get element_b
+	mult	$s3, $s4
+	mflo	$s6		# temp_c
+	add	$s5, $s5, $s6	# c += temp_c
+	addi	$t3, $t3, 1	# l++
+	bne	$t3, $s0, alu
+	sw	$s5, c($t7)
+	move	$s5, $0
+	move	$t3, $0
+	addi	$t2, $t2, 1	# k++
+	bne	$t2, $s0, alu
+	move	$t2, $0
+	addi	$t1, $t1, 1	# j++
+	bne	$t1, $s0, alu
+	move	$t1, $0
+
+transfer:	
+	mult	$s0, $t1
+	mflo	$t5
+	add	$t5, $t5, $t2
+	sll	$t5, $t5, 2	# j * n + k
+	
+	lw	$s6, c($t5)
+	sw	$s6, a($t5)
+	
+	addi	$t2, $t2, 1
+	bne	$t2, $s0, transfer
+	move	$t2, $0
+	addi	$t1, $t1, 1
+	bne	$t1, $s0, transfer
+	move	$t1, $0
+
+	addi	$t0, $t0, 1
+	bne	$t0, $s1, overall
+	move	$t0, $0
+	move	$t1, $0
+
+print:
+	mult	$t1, $s0
+	mflo	$t5
+	add	$t5, $t5, $t2
+	sll	$t5, $t5, 2
+	lw	$s3, a($t5)
+	move	$a0, $s3
+	li	$v0, 1
+	syscall
+	
+	li	$v0, 11
+	la	$a0, ' '
+	syscall
+	addi	$t2, $t2, 1	# k++
+	bne	$t2, $s0, print
+	move	$t2, $0
+	li	$v0, 11
+	la	$a0, '\n'
+	syscall
+	
+	addi	$t1, $t1, 1	# j++
+	bne	$t1, $s0, print
+	
+	li	$v0, 10
+	syscall
+	
+	
+	
+	
+		
+	
+	
+
+
+	

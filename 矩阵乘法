@@ -1,0 +1,150 @@
+.data
+data1:	.word	0:100
+data2:	.word	0:100
+data3:	.word	0:100
+space:	.asciiz " "
+enter: .asciiz "\n"
+
+.macro	done
+	li	$v0, 10
+	syscall
+.end_macro 
+
+.text
+	li	$v0, 5
+	syscall
+	move	$s0, $v0 # save the "n"
+	move	$s1, $0	 # "i"
+	move	$s2, $0  # "j"
+	move	$s3, $0	 # "element"
+		
+
+loop1:
+	li	$v0, 5
+	syscall	
+	move	$s3, $v0	# get the element
+	mult	$s1, $s0
+	mflo	$t0		# the 1st element of each row
+	add	$t0, $t0, $s2	# the position of the element
+	sll	$t0, $t0, 2	# the address of the element
+	sw	$s3, data1($t0)	
+	
+	addi	$s2, $s2, 1
+	bne	$s2, $s0, loop1
+	move	$s2, $0
+	addi	$s1, $s1, 1
+	bne	$s1, $s0, loop1
+	move	$s2, $0
+	move	$s1, $0
+
+loop2:
+	li	$v0, 5
+	syscall	
+	move	$s3, $v0	# get the element
+	mult	$s1, $s0
+	mflo	$t0		# the 1st element of each row
+	add	$t0, $t0, $s2	# the position of the element
+	sll	$t0, $t0, 2	# the address of the element
+	sw	$s3, data2($t0)	
+	
+	addi	$s2, $s2, 1
+	bne	$s2, $s0, loop2
+	move	$s2, $0
+	addi	$s1, $s1, 1
+	bne	$s1, $s0, loop2
+	move	$s1, $0	# data1_pos
+	move	$s2, $0	# data2_pos
+	move	$s3, $0	# data3_pos
+	move	$t0, $0	# result_i
+	move	$t1, $0	# result_j
+	move	$t2, $0	# result_k
+	move	$s4, $0 # data1_element
+	move	$s5, $0 # data2_element
+	move	$s6, $0 # data3_element_temp
+	move	$s7, $0 # data3_element
+	
+
+result:
+	mult	$t0, $s0
+	mflo	$s1
+	add	$s1, $s1, $t2
+	sll	$s1, $s1, 2
+	lw	$s4, data1($s1)
+	
+	mult	$t2, $s0
+	mflo	$s2
+	add	$s2, $s2, $t1
+	sll	$s2, $s2, 2
+	lw	$s5, data2($s2)
+	
+	mult	$s4, $s5
+	mflo	$s6
+	add	$s7, $s7, $s6
+	addi	$t2, $t2, 1	# k++
+	bne	$t2, $s0, result
+	
+	mult	$s0, $t0
+	mflo	$s3
+	add	$s3, $s3, $t1	# get the address of data3_element
+	sll	$s3, $s3, 2
+	sw	$s7, data3($s3)
+	
+	move	$t2, $0
+	addi	$t1, $t1, 1	# j++
+	move	$s6, $0
+	move	$s7, $0
+	bne	$t1, $s0, result
+	
+	move	$t2, $0
+	move	$t1, $0
+	addi	$t0, $t0, 1	# i++
+	bne	$t0, $s0, result
+	
+	# clear all
+	move	$s1, $0	# data1_pos
+	move	$s2, $0	# data2_pos
+	move	$s3, $0	# data3_pos
+	move	$t0, $0	# result_i
+	move	$t1, $0	# result_j
+	move	$t2, $0	# result_k
+	move	$s4, $0 # data1_element
+	move	$s5, $0 # data2_element
+	move	$s6, $0 # data3_element_temp
+	move	$s7, $0 # data3_element	
+	
+print:
+	mult	$s0, $t0
+	mflo	$s3
+	add	$s3, $s3, $t1
+	sll	$s3, $s3, 2
+	lw	$s7, data3($s3)
+	move	$a0, $s7
+	li	$v0, 1
+	syscall		# printf(element)
+	la	$a0, space	
+	li	$v0, 4
+	syscall		# print " "
+	addi	$t1, $t1, 1
+	bne	$t1, $s0, print
+	la	$a0, enter
+	li	$v0, 4
+	syscall		# print "\n"
+	move	$t1, $0
+	addi	$t0, $t0, 1
+	bne	$t0, $s0, print
+	li	$v0, 10
+	syscall
+	
+	
+	
+	
+			
+	 
+	
+	
+
+	
+
+
+	
+	

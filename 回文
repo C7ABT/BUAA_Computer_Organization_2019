@@ -1,0 +1,65 @@
+.data
+data:	.word	30
+
+.text
+	li	$s0, 0	# n
+	li	$s1, 0	# i
+	li	$s2, 0	# flag
+	li	$s3, 0	# element
+	li	$s4, 0	# j
+	li	$t0, 2
+	li	$t9, '\n'
+
+beg:
+	li	$v0, 5
+	syscall
+	move	$s0, $v0
+	subi	$t8, $s0, 1
+	div	$s5, $s0, $t0
+	#subi	$s5, $s5, 1
+
+loop:
+	li	$v0, 12
+	syscall
+	move	$s3, $v0
+	#beq	$s3, $t9, result
+	sll	$t2, $s1, 2	# get the address
+	sw	$s3, data($t2)
+	#sw	$s3, data($s1)
+	addi	$s1, $s1, 1
+	bne	$s1, $s0, loop
+	#li	$s1, 0	# i
+	li	$s2, 0	# flag
+	li	$s3, 0	# element
+	li	$s4, 0	# j
+
+result:
+	#div	$s5, $s0, $t0
+	#sub	$s4, $s0, $s2
+	sub	$s4, $t8, $s2
+	sll	$t3, $s2, 2
+	sll	$t4, $s4, 2
+	lw	$a1, data($t3)
+	lw	$a2, data($t4)
+	#lw	$a1, data($s2)
+	#lw	$a1, data($s4)
+	bne	$a1, $a2, false
+	addi	$s2, $s2, 1
+	bne	$s2, $s5, result
+	j	true
+
+true:
+	la	$a0, '1'
+	li	$v0, 11
+	syscall
+	li	$v0, 10
+	syscall
+
+false:
+	la	$a0, '0'
+	li	$v0, 11
+	syscall
+	li	$v0, 10
+	syscall
+	
+	
