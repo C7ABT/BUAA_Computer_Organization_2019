@@ -1,3 +1,3 @@
 # BUAA_Computer_Structure_2019
-一些乱七八糟的图
+Logisim卸载了，记不得这些都是啥，于是乎全传上来了，仅供参考。
 
